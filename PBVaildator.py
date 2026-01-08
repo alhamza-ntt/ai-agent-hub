@@ -2,6 +2,8 @@ from pydantic_ai import Agent
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
+from pydantic_ai.toolsets.fastmcp import FastMCPToolset
+
 
 load_dotenv()
 
@@ -33,10 +35,12 @@ system_message = """
 You are a Service Dispatch Assistant responsible for extracting machine service data
 and validating customer records.
 """
-
+fastmcp_server = os.getenv("FASTMCP_SERVER")
+toolset = FastMCPToolset(fastmcp_server)
 BPValidaotor_agent = Agent(
     model,
     system_prompt=system_message,
+    tools=[toolset]
     
 )
 
