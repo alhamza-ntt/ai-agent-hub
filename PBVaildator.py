@@ -37,7 +37,7 @@ and validating customer records.
 BPValidaotor_agent = Agent(
     model,
     system_prompt=system_message,
-    output_type=BPValidatorOutput,
+    
 )
 
 # THIS is what Azure will run
