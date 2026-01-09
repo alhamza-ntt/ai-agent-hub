@@ -37,12 +37,12 @@ and validating customer records.
 """
 fastmcp_server1 = os.getenv("FASTMCP_SERVER")
 fastmcp_server2 = "https://learn.microsoft.com/api/mcp"
-#toolset1 = FastMCPToolset(fastmcp_server1)
+toolset1 = FastMCPToolset(fastmcp_server1)
 toolset2 = FastMCPToolset(fastmcp_server2)
 BPValidaotor_agent = Agent(
     model,
     #system_prompt=system_message,
-    toolsets=[toolset2]
+    toolsets=[toolset1, toolset2]
     
 )
 
