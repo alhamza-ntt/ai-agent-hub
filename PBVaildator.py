@@ -35,14 +35,29 @@ system_message = """
 You are a Service Dispatch Assistant responsible for extracting machine service data
 and validating customer records.
 """
-fastmcp_server = os.getenv("FASTMCP_SERVER")
-toolset = FastMCPToolset(fastmcp_server)
+fastmcp_server1 = os.getenv("FASTMCP_SERVER")
+fastmcp_server2 = "https://learn.microsoft.com/api/mcp"
+#toolset1 = FastMCPToolset(fastmcp_server1)
+toolset2 = FastMCPToolset(fastmcp_server2)
 BPValidaotor_agent = Agent(
     model,
-    system_prompt=system_message,
-    tools=[toolset]
+    #system_prompt=system_message,
+    toolsets=[toolset2]
     
 )
 
-# THIS is what Azure will run
 app = BPValidaotor_agent.to_a2a()
+
+""" 
+if __name__ == "__main__":
+    import asyncio
+ 
+    async def main():
+        result = await BPValidaotor_agent.run(
+            "what tools do you have? names only",
+        )
+        print(result.output)
+        #print((result.output.status))
+ 
+    asyncio.run(main())
+"""
