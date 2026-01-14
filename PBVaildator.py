@@ -38,6 +38,10 @@ BPValidaotor_agent = Agent(model, toolsets=[toolset1, toolset2])
 
 # FastA2A app (Starlette)
 app = BPValidaotor_agent.to_a2a()
+from starlette.responses import JSONResponse
+from starlette.routing import Route
+
+app = BPValidaotor_agent.to_a2a()
 
 async def microsoft_friendly_agent_card(request):
     base_url = str(request.base_url).rstrip("/") + "/"
@@ -47,14 +51,16 @@ async def microsoft_friendly_agent_card(request):
         "description": "Extracts and validates machine service dispatch data and customer records.",
         "version": "1.0.0",
 
+        # ✅ Microsoft preview tooling appears to REQUIRE these
         "url": base_url,
-
         "preferredTransport": "JSONRPC",
+        "protocolVersion": "0.3",
 
-        "capabilities": {
-            "streaming": True,
-            "pushNotifications": False
-        },
+        # ✅ Newer spec uses this (plural). Including both improves compatibility.
+        "protocolVersions": ["0.3"],
+
+        # Helpful / commonly expected
+        "capabilities": {"streaming": True, "pushNotifications": False},
         "defaultInputModes": ["text/plain"],
         "defaultOutputModes": ["text/plain"],
 
@@ -63,14 +69,13 @@ async def microsoft_friendly_agent_card(request):
                 "id": "bp-validator",
                 "name": "Business Partner Validation",
                 "description": "Validates customer and machine service details; can use MCP tools.",
-                "tags": ["validation", "service", "dispatch"],
-                "examples": ["Validate BP 123456 for machine 987 and summarize the issue."]
+                "examples": ["List the MS Learn resources you can access via your tools."]
             }
         ],
     }
 
     return JSONResponse(card)
 
-# Override both discovery paths
+# Serve the same card from both discovery endpoints:
 app.router.routes.insert(0, Route("/.well-known/agent.json", microsoft_friendly_agent_card, methods=["GET"]))
 app.router.routes.insert(0, Route("/.well-known/agent-card.json", microsoft_friendly_agent_card, methods=["GET"]))
