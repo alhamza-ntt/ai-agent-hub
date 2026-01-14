@@ -4,6 +4,9 @@ from dotenv import load_dotenv
 import os
 from pydantic_ai.toolsets.fastmcp import FastMCPToolset
 
+from starlette.routing import Route
+from starlette.requests import Request
+from starlette.responses import Response
 
 load_dotenv()
 
@@ -31,33 +34,33 @@ def create_model(llm_model: str = "gpt-5-chat"):
 
 model = create_model()
 
-system_message = """
-You are a Service Dispatch Assistant responsible for extracting machine service data
-and validating customer records.
-"""
 fastmcp_server1 = os.getenv("FASTMCP_SERVER")
 fastmcp_server2 = "https://learn.microsoft.com/api/mcp"
 toolset1 = FastMCPToolset(fastmcp_server1)
 toolset2 = FastMCPToolset(fastmcp_server2)
+
 BPValidaotor_agent = Agent(
     model,
-    #system_prompt=system_message,
-    toolsets=[toolset1, toolset2]
-    
+    toolsets=[toolset1, toolset2],
 )
 
 app = BPValidaotor_agent.to_a2a()
 
-""" 
+
+
+async def agent_json_alias(request: Request) -> Response:
+    return await app._agent_card_endpoint(request)  
+
+app.router.routes.insert(
+    0,
+    Route("/.well-known/agent.json", endpoint=agent_json_alias, methods=["GET"]),
+)
+
 if __name__ == "__main__":
     import asyncio
- 
+
     async def main():
-        result = await BPValidaotor_agent.run(
-            "what tools do you have? names only",
-        )
+        result = await BPValidaotor_agent.run("what tools do you have? names only")
         print(result.output)
-        #print((result.output.status))
- 
+
     asyncio.run(main())
-"""
